@@ -65,7 +65,12 @@ async function run() {
         const result = await bookingCollection.insertOne(newPackage)
         res.send(result)
     })
-
+    app.delete('/package/:id',async(req,res)=>{
+       const id = req.params.id
+        const query = {_id:new ObjectId(id)}
+        const result = await bookingCollection.deleteOne(query)
+        res.send(result)
+    })
     // booking releted apis 
     app.get('/dashboard/my-bookings',async(req,res)=>{
       const email = req.query.email
