@@ -78,7 +78,7 @@ async function run() {
         line_items: [
           {
             price_data:{
-              currency:'usd',
+              currency:'bdt',
               product_data:{name,images:[image]},
               unit_amount:amount*100
             },
@@ -89,7 +89,8 @@ async function run() {
         customer_email:email,
         metadata:{
           bookingId,
-          trakingId
+          trakingId,
+          packageId
         },
         success_url: `${process.env.YOUR_DOMAIN}/payment-success`,
         cancel_url: `${process.env.YOUR_DOMAIN}/dashboard/my-bookings`,
