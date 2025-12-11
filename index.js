@@ -62,10 +62,21 @@ async function run() {
     })
     app.post('/package',async(req,res)=>{
         const newPackage = req.body
-        console.log(newPackage)
         const result = await bookingCollection.insertOne(newPackage)
         res.send(result)
     })
+
+    // booking releted apis 
+    app.get('/dashboard/my-bookings',async(req,res)=>{
+      const email = req.query.email
+      const query ={}
+      if(email){
+        query.userEmail=email
+      }
+      const result = await bookingCollection.find(query).toArray()
+      res.send(result)
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
