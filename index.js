@@ -1,7 +1,7 @@
 const express = require('express')
 require('dotenv').config()
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
 const port = process.env.PORT || 3000
 
@@ -30,6 +30,7 @@ async function run() {
     await client.connect();
     const db = client.db('styleDecor')
     const packagesCollection = db.collection('packages')
+    const bookingCollection = db.collection('booking')
 
     // package releted apis 
     app.get('/packages',async(req,res)=>{
@@ -53,6 +54,18 @@ async function run() {
         res.send(result)
     })
 
+    app.get('/package/:id',async(req,res)=>{
+        const id = req.params.id
+        const query = {_id:new ObjectId(id)}
+        const result = await packagesCollection.findOne(query)
+        res.send(result)
+    })
+    app.post('/package',async(req,res)=>{
+        const newPackage = req.body
+        console.log(newPackage)
+        const result = await bookingCollection.insertOne(newPackage)
+        res.send(result)
+    })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
