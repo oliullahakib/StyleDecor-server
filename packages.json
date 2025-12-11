@@ -1,0 +1,92 @@
+[
+    {
+        "service_name": "Premium Wedding Stage Design",
+        "cost": 55000,
+        "unit": "per stage",
+        "service_category": "wedding",
+        "description": "Exclusive, grand stage setup with floral arrangements, lighting truss, and thematic backdrops suitable for high-end wedding receptions.",
+        "createdByEmail": "jhankar@mahabub.com",
+        "imageUrl":"https://static.vecteezy.com/system/resources/thumbnails/043/918/635/small/wedding-stage-decoration-background-inside-the-building-with-elegant-and-beautiful-flower-decorations-free-photo.jpeg"
+    },
+    {
+        "service_name": "Standard Home Wall Painting",
+        "cost": 1500,
+        "unit": "per sq-ft",
+        "service_category": "home",
+        "description": "Two coats of standard emulsion paint application on interior walls. Includes basic surface preparation.",
+        "createdByEmail": "oliullah@akib.com",
+        "imageUrl": "https://assets-news.housing.com/news/wp-content/uploads/2022/02/25095014/Home-interior-wall-colour-combination-15-colour-combinations-that-will-totally-change-your-home.jpg"
+    },
+    {
+        "service_name": "Corporate Office Boardroom Setup",
+        "cost": 8000,
+        "unit": "per meeting",
+        "service_category": "meeting",
+        "description": "Professional setup including table linens, flower centerpieces, corporate branding, and ambient lighting for important meetings.",
+        "createdByEmail": "jhankar@mahabub.com",
+        "imageUrl":"https://smartway2.com/wp-content/uploads/2021/01/conference-room-setup-blog.jpg"
+    },
+    {
+        "service_name": "Birthday Party Basic Package",
+        "cost": 6500,
+        "unit": "per party",
+        "service_category": "home",
+        "description": "Essential decoration package including balloons, banners, and a small photo booth area for residential birthday celebrations.",
+        "createdByEmail": "oliullah@akib.com",
+        "imageUrl": "https://images.ctfassets.net/3dar4x4x74wk/2nJhdn5CPKOXK89QIGVYN8/fe8d023e813c6bc3d5470bd3f137b7d7/Unicorn_Tablescape_188.jpg?w=808"
+    },
+    {
+        "service_name": "Annual Seminar Event Decor",
+        "cost": 25000,
+        "unit": "per seminar",
+        "service_category": "seminar",
+        "description": "Complete decoration for a day-long corporate seminar, including podium backdrop, delegate table setup, and venue signage.",
+        "createdByEmail": "jhankar@mahabub.com",
+        "imageUrl": "https://images.squarespace-cdn.com/content/v1/564cc7cce4b029f6e5e8f87e/1609810210324-FRKI915WAJKQWNH9O7I2/micro-wedding+1.jpg"
+    },
+    {
+        "service_name": "Luxury Home Interior Consultation",
+        "cost": 5000,
+        "unit": "per sq-ft",
+        "service_category": "home",
+        "description": "Full-service luxury interior design consultation, material selection, and execution management for high-end homes/apartments.",
+        "createdByEmail": "oliullah@akib.com",
+        "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4Fk-WZrw5QR0qCp7mRGZaorKcKFDDRnTT0A&s"
+    },
+    {
+        "service_name": "Office Floor Renovation Package",
+        "cost": 3000,
+        "unit": "per sq-ft",
+        "service_category": "office",
+        "description": "Comprehensive renovation services for an entire office floor, including false ceiling, lighting, and modular furniture setup.",
+        "createdByEmail": "jhankar@mahabub.com",
+        "imageUrl": "https://www.osca.asia/wp-content/uploads/2025/07/office-renovation-1-1.jpg"
+    },
+    {
+        "service_name": "Engagement Ceremony Backdrop",
+        "cost": 18000,
+        "unit": "per event",
+        "service_category": "wedding",
+        "description": "Elegant, customizable floral and drapery backdrop setup for engagement and pre-wedding photo shoots.",
+        "createdByEmail": "oliullah@akib.com",
+        "imageUrl": "https://m.media-amazon.com/images/I/61RZKl0B2uL._AC_UF1000,1000_QL80_.jpg"
+    },
+    {
+        "service_name": "Small Office Reception Decor",
+        "cost": 12000,
+        "unit": "per room",
+        "service_category": "office",
+        "description": "Design and setup for a small office reception area, including branded wall, seating arrangement, and plant placement.",
+        "createdByEmail": "jhankar@mahabub.com",
+        "imageUrl": "https://officebanao.com/wp-content/uploads/2023/08/office-recepation-design-hero.png"
+    },
+    {
+        "service_name": "Exhibition Stall Basic Setup",
+        "cost": 1000,
+        "unit": "per meter",
+        "service_category": "seminar",
+        "description": "Basic modular stall setup for trade exhibitions, including carpet, focus lighting, and simple branding panels.",
+        "createdByEmail": "oliullah@akib.com",
+        "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYX5Oh-ZlQ7J-5UGvxtasfafBhy1FtraJU6A&s"
+    }
+]
