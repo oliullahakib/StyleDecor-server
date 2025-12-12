@@ -44,6 +44,10 @@ async function run() {
     const decoratorsCollection = db.collection('decorators')
 
     // user releted apis 
+    app.get('/decorators',async(req,res)=>{
+      const result = await decoratorsCollection.find().toArray()
+      res.send(result)
+    })
     app.post('/decorator',async(req,res)=>{
       const newDecorator = req.body
       // check the user first 
