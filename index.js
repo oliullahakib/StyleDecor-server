@@ -42,18 +42,28 @@ async function run() {
     const bookingCollection = db.collection('booking')
     const paymentCollection = db.collection('payment')
     const decoratorsCollection = db.collection('decorators')
+    const usersCollection = db.collection('users')
 
     // user releted apis 
-    app.get('/decorators',async(req,res)=>{
+    app.post('/user', async (req, res) => {
+      const newUser = req.body
+      newUser.createdAt = new Date()
+      newUser.role = "user"
+      const result = await usersCollection.insertOne(newUser)
+      res.send(result)
+    })
+
+    // decorator releted apis 
+    app.get('/decorators', async (req, res) => {
       const result = await decoratorsCollection.find().toArray()
       res.send(result)
     })
-    app.post('/decorator',async(req,res)=>{
+    app.post('/decorator', async (req, res) => {
       const newDecorator = req.body
       // check the user first 
-      const userExist = await decoratorsCollection.findOne({emai:newDecorator.emai})
+      const userExist = await decoratorsCollection.findOne({ emai: newDecorator.emai })
       if (userExist) {
-        return res.send({message:"You already apply"})
+        return res.send({ message: "You already apply" })
       }
       newDecorator.applyStatus = "pending"
       const result = await decoratorsCollection.insertOne(newDecorator)
@@ -88,19 +98,19 @@ async function run() {
       const result = await packagesCollection.findOne(query)
       res.send(result)
     })
-    app.post('/package',async(req,res)=>{
+    app.post('/package', async (req, res) => {
       const newPackage = req.body
       const result = await packagesCollection.insertOne(newPackage)
       res.send(result)
     })
     // payment releted apis 
-    app.get('/my-payment-history',async(req,res)=>{
+    app.get('/my-payment-history', async (req, res) => {
       const email = req.query.email
-      const query ={}
-      if(!email){
-        return res.send({message:"requer email to work"})
+      const query = {}
+      if (!email) {
+        return res.send({ message: "requer email to work" })
       }
-      query.payer_email=email
+      query.payer_email = email
       const result = await paymentCollection.find(query).toArray()
       res.send(result)
     })
@@ -125,7 +135,7 @@ async function run() {
           bookingId,
           trakingId,
           packageId,
-          service_name:name
+          service_name: name
         },
         success_url: `${process.env.YOUR_DOMAIN}/dashboard/payment-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${process.env.YOUR_DOMAIN}/dashboard/my-bookings`,
@@ -152,7 +162,7 @@ async function run() {
       // modify the booking 
       const id = sessonData.metadata.bookingId
       const trakingId = sessonData.metadata.trakingId;
-      const filter = {_id: new ObjectId(id) }
+      const filter = { _id: new ObjectId(id) }
       const update = {
         $set: {
           paymentStatus: sessonData.payment_status,
