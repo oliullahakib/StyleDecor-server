@@ -69,6 +69,34 @@ async function run() {
       const result = await decoratorsCollection.insertOne(newDecorator)
       res.send(result)
     })
+    app.delete('/decorator/:id',async (req, res) => {
+      const { id } = req.params
+      const query = { _id: new ObjectId(id) }
+      const result = await decoratorsCollection.deleteOne(query)
+      res.send(result)
+    })
+    app.patch('/decorator/:id', async (req, res) => {
+      const { id } = req.params
+      const { status, email } = req.body
+      const query = { _id: new ObjectId(id) }
+      const update = {
+        $set: { applyStatus: status }
+      }
+      const result = await decoratorsCollection.updateOne(query, update)
+
+      // update user role 
+      if (status === "accepted") {
+        const query = {}
+        if (email) {
+          query.email = email
+        }
+        const updateRole = {
+          $set: { role: "decorator" }
+        }
+        const userResult = await usersCollection.updateOne(query, updateRole)
+      }
+      res.send(result)
+    })
 
     // package releted apis 
     app.get('/packages', async (req, res) => {
