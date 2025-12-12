@@ -41,6 +41,20 @@ async function run() {
     const packagesCollection = db.collection('packages')
     const bookingCollection = db.collection('booking')
     const paymentCollection = db.collection('payment')
+    const decoratorsCollection = db.collection('decorators')
+
+    // user releted apis 
+    app.post('/decorator',async(req,res)=>{
+      const newDecorator = req.body
+      // check the user first 
+      const userExist = await decoratorsCollection.findOne({emai:newDecorator.emai})
+      if (userExist) {
+        return res.send({message:"You already apply"})
+      }
+      newDecorator.applyStatus = "pending"
+      const result = await decoratorsCollection.insertOne(newDecorator)
+      res.send(result)
+    })
 
     // package releted apis 
     app.get('/packages', async (req, res) => {
