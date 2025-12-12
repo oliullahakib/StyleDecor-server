@@ -70,6 +70,11 @@ async function run() {
       const result = await packagesCollection.findOne(query)
       res.send(result)
     })
+    app.post('/package',async(req,res)=>{
+      const newPackage = req.body
+      const result = await packagesCollection.insertOne(newPackage)
+      res.send(result)
+    })
     // payment releted apis 
     app.get('/my-payment-history',async(req,res)=>{
       const email = req.query.email
@@ -101,7 +106,8 @@ async function run() {
         metadata: {
           bookingId,
           trakingId,
-          packageId
+          packageId,
+          service_name:name
         },
         success_url: `${process.env.YOUR_DOMAIN}/dashboard/payment-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${process.env.YOUR_DOMAIN}/dashboard/my-bookings`,
@@ -141,10 +147,11 @@ async function run() {
 
       // create a transaciton history 
       const paymentInfo = {
-        amoun: sessonData.amount_total,
+        amount: sessonData.amount_total,
         currency: sessonData.currency,
         payer_email: sessonData.customer_email,
         packageId: sessonData.metadata.packageId,
+        service_name: sessonData.metadata.service_name,
         bookingId: sessonData.metadata.bookingId,
         transactionId: sessonData.payment_intent,
         paymentStatus: sessonData.payment_status,
