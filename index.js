@@ -71,6 +71,16 @@ async function run() {
       res.send(result)
     })
     // payment releted apis 
+    app.get('/my-payment-history',async(req,res)=>{
+      const email = req.query.email
+      const query ={}
+      if(!email){
+        return res.send({message:"requer email to work"})
+      }
+      query.payer_email=email
+      const result = await paymentCollection.find(query).toArray()
+      res.send(result)
+    })
     app.post('/payment-checkout-session', async (req, res) => {
       const packageInfo = req.body
       const { email, bookingId, name, image, cost, trakingId, packageId } = packageInfo
@@ -123,6 +133,7 @@ async function run() {
         $set: {
           paymentStatus: sessonData.payment_status,
           trakingId,
+          transactionId: sessonData.payment_intent,
           serviceStatus: "pending"
         }
       }
@@ -149,6 +160,7 @@ async function run() {
         modifyResult
       })
     })
+
     // booking releted apis 
     app.get('/dashboard/my-bookings', async (req, res) => {
       const email = req.query.email
