@@ -40,6 +40,7 @@ async function run() {
     const db = client.db('styleDecor')
     const packagesCollection = db.collection('packages')
     const bookingCollection = db.collection('booking')
+    const paymentCollection = db.collection('payment')
 
     // package releted apis 
     app.get('/packages', async (req, res) => {
@@ -72,32 +73,82 @@ async function run() {
     // payment releted apis 
     app.post('/payment-checkout-session', async (req, res) => {
       const packageInfo = req.body
-      const {email,bookingId,name,image,cost,trakingId,packageId}=packageInfo
+      const { email, bookingId, name, image, cost, trakingId, packageId } = packageInfo
       const amount = parseInt(cost)
       const session = await stripe.checkout.sessions.create({
         line_items: [
           {
-            price_data:{
-              currency:'bdt',
-              product_data:{name,images:[image]},
-              unit_amount:amount*100
+            price_data: {
+              currency: 'bdt',
+              product_data: { name, images: [image] },
+              unit_amount: amount * 100
             },
             quantity: 1,
           },
         ],
-        mode:'payment',
-        customer_email:email,
-        metadata:{
+        mode: 'payment',
+        customer_email: email,
+        metadata: {
           bookingId,
           trakingId,
           packageId
         },
-        success_url: `${process.env.YOUR_DOMAIN}/payment-success`,
+        success_url: `${process.env.YOUR_DOMAIN}/dashboard/payment-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${process.env.YOUR_DOMAIN}/dashboard/my-bookings`,
       })
       res.send(session.url)
     })
 
+    app.patch('/payment-success', async (req, res) => {
+      const { session_id } = req.query
+      const sessonData = await stripe.checkout.sessions.retrieve(session_id)
+      console.log(sessonData)
+
+      // check the booking first 
+      const query = { transactionId: sessonData.payment_intent }
+      const bookingExsit = await paymentCollection.findOne(query)
+      if (bookingExsit) {
+        return res.send({
+          message: "Payment already complite for this booking",
+          transactionId: sessonData.payment_intent,
+          trakingId: bookingExsit.trakingId,
+        })
+      }
+
+      // modify the booking 
+      const id = sessonData.metadata.bookingId
+      const trakingId = sessonData.metadata.trakingId;
+      const filter = {_id: new ObjectId(id) }
+      const update = {
+        $set: {
+          paymentStatus: sessonData.payment_status,
+          trakingId,
+          serviceStatus: "pending"
+        }
+      }
+      const modifyResult = await bookingCollection.updateOne(filter, update)
+
+      // create a transaciton history 
+      const paymentInfo = {
+        amoun: sessonData.amount_total,
+        currency: sessonData.currency,
+        payer_email: sessonData.customer_email,
+        packageId: sessonData.metadata.packageId,
+        bookingId: sessonData.metadata.bookingId,
+        transactionId: sessonData.payment_intent,
+        paymentStatus: sessonData.payment_status,
+        payAt: new Date(),
+        trakingId
+      }
+      const paymentResult = await paymentCollection.insertOne(paymentInfo)
+      res.send({
+        message: "success",
+        paymentResult,
+        transactionId: sessonData.payment_intent,
+        trakingId,
+        modifyResult
+      })
+    })
     // booking releted apis 
     app.get('/dashboard/my-bookings', async (req, res) => {
       const email = req.query.email
@@ -108,9 +159,9 @@ async function run() {
       const result = await bookingCollection.find(query).toArray()
       res.send(result)
     })
-    app.get('/booking/:id',async(req,res)=>{
+    app.get('/booking/:id', async (req, res) => {
       const id = req.params.id
-      const query={_id:new ObjectId(id)}
+      const query = { _id: new ObjectId(id) }
       const result = await bookingCollection.findOne(query)
       res.send(result)
     })
