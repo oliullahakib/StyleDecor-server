@@ -240,14 +240,14 @@ async function run() {
       const result = await bookingCollection.findOne(query)
       res.send(result)
     })
-    app.post('/package', async (req, res) => {
+    app.post('/booking', async (req, res) => {
       const newPackage = req.body
       const trakingId = createTrackingId()
       newPackage.trakingId = trakingId
       const result = await bookingCollection.insertOne(newPackage)
       res.send(result)
     })
-    app.delete('/package/:id', async (req, res) => {
+    app.delete('/booking/:id', async (req, res) => {
       const id = req.params.id
       const query = { _id: new ObjectId(id) }
       const result = await bookingCollection.deleteOne(query)
