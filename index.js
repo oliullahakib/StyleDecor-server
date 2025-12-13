@@ -56,10 +56,10 @@ async function run() {
     // decorator releted apis 
     app.get('/decorators', async (req, res) => {
       const category = req.query.category
-      const query={}
-      if(category){
+      const query = {}
+      if (category) {
         query.service_type = category
-        query.applyStatus="accepted"
+        query.applyStatus = "accepted"
       }
       const result = await decoratorsCollection.find(query).toArray()
       res.send(result)
@@ -75,7 +75,7 @@ async function run() {
       const result = await decoratorsCollection.insertOne(newDecorator)
       res.send(result)
     })
-    app.delete('/decorator/:id',async (req, res) => {
+    app.delete('/decorator/:id', async (req, res) => {
       const { id } = req.params
       const query = { _id: new ObjectId(id) }
       const result = await decoratorsCollection.deleteOne(query)
@@ -233,14 +233,28 @@ async function run() {
 
     // booking releted apis 
     // admin 
-    app.get('/bookings',async(req,res)=>{
-      const serviceStatus=req.query.serviceStatus
-      const query={}
-      if(serviceStatus){
-       query.serviceStatus=serviceStatus
+    app.get('/bookings', async (req, res) => {
+      const serviceStatus = req.query.serviceStatus
+      const query = {}
+      if (serviceStatus) {
+        query.serviceStatus = serviceStatus
       }
       const result = await bookingCollection.find(query).toArray()
       res.send(result)
+    })
+    // decorator 
+    app.get('/bookings/service-status', async (req, res) => {
+      const email = req.query.email
+      const status = req.query.status
+      const query = {}
+      if (email) {
+        query.decoratorEmail = email
+      }
+      if (status) {
+        query.serviceStatus = status
+      }
+      const result = await bookingCollection.find(query).toArray()
+      return res.send(result)
     })
     // user 
     app.get('/dashboard/my-bookings', async (req, res) => {
@@ -266,16 +280,30 @@ async function run() {
       res.send(result)
     })
     // admin 
-    app.patch('/booking/:id',async(req,res)=>{
+    app.patch('/booking/:id', async (req, res) => {
       const id = req.params.id
-      const assignDecoratorInfo=req.body
+      const assignDecoratorInfo = req.body
       const query = { _id: new ObjectId(id) }
-      const update={
-        $set:{...assignDecoratorInfo,serviceStatus:"assign"}
+      const update = {
+        $set: { ...assignDecoratorInfo, serviceStatus: "assign" }
       }
-      const result = await bookingCollection.updateOne(query,update)
+      const result = await bookingCollection.updateOne(query, update)
       res.send(result)
     })
+
+    // decorator 
+    app.patch('/booking/project/:id', async (req, res) => {
+      const { id } = req.params
+      console.log(req.body)
+      const status  = req.body.status
+      const query = { _id: new ObjectId(id) }
+      const update = {
+        $set: { serviceStatus: status }
+      }
+      const result = await bookingCollection.updateOne(query, update)
+      res.send(result)
+    })
+
     app.delete('/booking/:id', async (req, res) => {
       const id = req.params.id
       const query = { _id: new ObjectId(id) }
