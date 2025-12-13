@@ -246,11 +246,15 @@ async function run() {
     // decorator 
         app.get('/bookings/dacorator', async (req, res) => {
       const serviceStatus = req.query.serviceStatus
+      const email = req.query.email
       const query = {}
-      if (serviceStatus!=="pending"&serviceStatus!=="assign" ) {
-        query.serviceStatus = {$nin:['pending','assign']}
+      if (serviceStatus!=="pending"&serviceStatus!=="assign"&serviceStatus!=="completed" ) {
+        query.serviceStatus = {$nin:['pending','assign','completed']}
       }else{
         query.serviceStatus = serviceStatus
+      }
+      if(email){
+        query.userEmail=email
       }
       const result = await bookingCollection.find(query).toArray()
       res.send(result)
