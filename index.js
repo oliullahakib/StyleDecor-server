@@ -225,6 +225,17 @@ async function run() {
     })
 
     // booking releted apis 
+    // admin 
+    app.get('/bookings',async(req,res)=>{
+      const paymentStatus=req.query.paymentStatus
+      const query={}
+      if(paymentStatus){
+       query.paymentStatus=paymentStatus
+      }
+      const result = await bookingCollection.find(query).toArray()
+      res.send(result)
+    })
+    // user 
     app.get('/dashboard/my-bookings', async (req, res) => {
       const email = req.query.email
       const query = {}
