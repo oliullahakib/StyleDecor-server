@@ -196,7 +196,8 @@ async function run() {
           paymentStatus: sessonData.payment_status,
           trakingId,
           transactionId: sessonData.payment_intent,
-          serviceStatus: "pending"
+          serviceStatus: "pending",
+          payAt: new Date()
         }
       }
       const modifyResult = await bookingCollection.updateOne(filter, update)
