@@ -55,7 +55,13 @@ async function run() {
 
     // decorator releted apis 
     app.get('/decorators', async (req, res) => {
-      const result = await decoratorsCollection.find().toArray()
+      const category = req.query.category
+      const query={}
+      if(category){
+        query.service_type = category
+        query.applyStatus="accepted"
+      }
+      const result = await decoratorsCollection.find(query).toArray()
       res.send(result)
     })
     app.post('/decorator', async (req, res) => {
