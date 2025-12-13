@@ -67,7 +67,7 @@ async function run() {
     app.post('/decorator', async (req, res) => {
       const newDecorator = req.body
       // check the user first 
-      const userExist = await decoratorsCollection.findOne({ emai: newDecorator.emai })
+      const userExist = await decoratorsCollection.findOne({ email: newDecorator.email })
       if (userExist) {
         return res.send({ message: "You already apply" })
       }
@@ -242,7 +242,19 @@ async function run() {
       const result = await bookingCollection.find(query).toArray()
       res.send(result)
     })
+
     // decorator 
+        app.get('/bookings/dacorator', async (req, res) => {
+      const serviceStatus = req.query.serviceStatus
+      const query = {}
+      if (serviceStatus!=="pending"&serviceStatus!=="assign" ) {
+        query.serviceStatus = {$nin:['pending','assign']}
+      }else{
+        query.serviceStatus = serviceStatus
+      }
+      const result = await bookingCollection.find(query).toArray()
+      res.send(result)
+    })
     app.get('/bookings/service-status', async (req, res) => {
       const email = req.query.email
       const status = req.query.status
