@@ -234,10 +234,10 @@ async function run() {
     // booking releted apis 
     // admin 
     app.get('/bookings',async(req,res)=>{
-      const paymentStatus=req.query.paymentStatus
+      const serviceStatus=req.query.serviceStatus
       const query={}
-      if(paymentStatus){
-       query.paymentStatus=paymentStatus
+      if(serviceStatus){
+       query.serviceStatus=serviceStatus
       }
       const result = await bookingCollection.find(query).toArray()
       res.send(result)
@@ -263,6 +263,17 @@ async function run() {
       const trakingId = createTrackingId()
       newPackage.trakingId = trakingId
       const result = await bookingCollection.insertOne(newPackage)
+      res.send(result)
+    })
+    // admin 
+    app.patch('/booking/:id',async(req,res)=>{
+      const id = req.params.id
+      const assignDecoratorInfo=req.body
+      const query = { _id: new ObjectId(id) }
+      const update={
+        $set:{...assignDecoratorInfo,serviceStatus:"assign"}
+      }
+      const result = await bookingCollection.updateOne(query,update)
       res.send(result)
     })
     app.delete('/booking/:id', async (req, res) => {
