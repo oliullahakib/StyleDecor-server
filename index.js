@@ -3,16 +3,41 @@ require('dotenv').config()
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const stripe = require('stripe')(process.env.PAYMENT_SECRET);
+const admin = require("firebase-admin");
+const serviceAccount = require("./styledecor-firebase-adminsdk.json");
+
 const app = express()
 const port = process.env.PORT || 3000
 
-
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 // middleware 
 app.use(express.json())
 app.use(cors())
 app.get('/', (req, res) => {
   res.send('styleDecor start !')
 })
+// cusmont middleware 
+const verifyFriebaseToken = async (req, res, next) => {
+  const authorization = req.headers.authorization
+
+  if (!authorization) {
+    return res.status(401).send({ message: "unauthorize access" })
+  }
+  const token = authorization.split(' ')[1]
+
+  if (!token) {
+    return res.status(401).send({ message: "unauthorize access" })
+  }
+  try {
+    const decoded = await admin.auth().verifyIdToken(token)
+    req.token_email = decoded.email
+    next()
+  } catch (error) {
+    return res.status(401).send({ message: "unauthorize access" })
+  }
+}
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wfr9cox.mongodb.net/?appName=Cluster0`;
 
@@ -105,6 +130,7 @@ async function run() {
     })
 
     // package releted apis 
+    // public 
     app.get('/packages', async (req, res) => {
       const search = req.query.search
       const type = req.query.type
@@ -132,13 +158,14 @@ async function run() {
       const result = await packagesCollection.findOne(query)
       res.send(result)
     })
-    app.post('/package', async (req, res) => {
+    // adimn 
+    app.post('/package', verifyFriebaseToken, async (req, res) => {
       const newPackage = req.body
       const result = await packagesCollection.insertOne(newPackage)
       res.send(result)
     })
     // payment releted apis 
-    app.get('/my-payment-history', async (req, res) => {
+    app.get('/my-payment-history', verifyFriebaseToken, async (req, res) => {
       const email = req.query.email
       const query = {}
       if (!email) {
@@ -148,7 +175,7 @@ async function run() {
       const result = await paymentCollection.find(query).toArray()
       res.send(result)
     })
-    app.post('/payment-checkout-session', async (req, res) => {
+    app.post('/payment-checkout-session', verifyFriebaseToken, async (req, res) => {
       const packageInfo = req.body
       const { email, bookingId, name, image, cost, trakingId, packageId } = packageInfo
       const amount = parseInt(cost)
@@ -177,7 +204,7 @@ async function run() {
       res.send(session.url)
     })
 
-    app.patch('/payment-success', async (req, res) => {
+    app.patch('/payment-success', verifyFriebaseToken, async (req, res) => {
       const { session_id } = req.query
       const sessonData = await stripe.checkout.sessions.retrieve(session_id)
       console.log(sessonData)
@@ -233,7 +260,7 @@ async function run() {
 
     // booking releted apis 
     // admin 
-    app.get('/bookings', async (req, res) => {
+    app.get('/bookings', verifyFriebaseToken, async (req, res) => {
       const serviceStatus = req.query.serviceStatus
       const query = {}
       if (serviceStatus) {
@@ -244,22 +271,22 @@ async function run() {
     })
 
     // decorator 
-        app.get('/bookings/dacorator', async (req, res) => {
+    app.get('/bookings/dacorator', verifyFriebaseToken, async (req, res) => {
       const serviceStatus = req.query.serviceStatus
       const email = req.query.email
       const query = {}
-      if (serviceStatus!=="pending"&serviceStatus!=="assign"&serviceStatus!=="completed" ) {
-        query.serviceStatus = {$nin:['pending','assign','completed']}
-      }else{
+      if (serviceStatus !== "pending" & serviceStatus !== "assign" & serviceStatus !== "completed") {
+        query.serviceStatus = { $nin: ['pending', 'assign', 'completed'] }
+      } else {
         query.serviceStatus = serviceStatus
       }
-      if(email){
-        query.userEmail=email
+      if (email) {
+        query.userEmail = email
       }
-      const result = await bookingCollection.find(query).sort({date:-1}).toArray()
+      const result = await bookingCollection.find(query).sort({ date: -1 }).toArray()
       res.send(result)
     })
-    app.get('/bookings/service-status', async (req, res) => {
+    app.get('/bookings/service-status', verifyFriebaseToken, async (req, res) => {
       const email = req.query.email
       const status = req.query.status
       const query = {}
@@ -273,30 +300,30 @@ async function run() {
       return res.send(result)
     })
     // user 
-    app.get('/dashboard/my-bookings', async (req, res) => {
+    app.get('/dashboard/my-bookings', verifyFriebaseToken, async (req, res) => {
       const email = req.query.email
       const sort = req.query.sort
-      const limitValue = Number(req.query.limit) ||0
-      const skipValue = Number(req.query.skip) 
+      const limitValue = Number(req.query.limit) || 0
+      const skipValue = Number(req.query.skip) || 0
       let sortValue
       const query = {}
       if (email) {
         query.userEmail = email
       }
-      if(sort){
-        sortValue=sort==='desc'?-1:1 || -1
+      if (sort) {
+        sortValue = sort === 'desc' ? -1 : 1 || -1
       }
-      const result = await bookingCollection.find(query).limit(limitValue).skip(skipValue).sort({date:sortValue}).toArray()
-      const totalBooking = await bookingCollection.countDocuments() 
-      res.send({result,totalBooking})
+      const result = await bookingCollection.find(query).limit(limitValue).skip(skipValue).sort({ date: sortValue }).toArray()
+      const totalBooking = await bookingCollection.countDocuments()
+      res.send({ result, totalBooking })
     })
-    app.get('/booking/:id', async (req, res) => {
+    app.get('/booking/:id', verifyFriebaseToken, async (req, res) => {
       const id = req.params.id
       const query = { _id: new ObjectId(id) }
       const result = await bookingCollection.findOne(query)
       res.send(result)
     })
-    app.post('/booking', async (req, res) => {
+    app.post('/booking', verifyFriebaseToken, async (req, res) => {
       const newPackage = req.body
       const trakingId = createTrackingId()
       newPackage.trakingId = trakingId
@@ -304,7 +331,7 @@ async function run() {
       res.send(result)
     })
     // admin 
-    app.patch('/booking/:id', async (req, res) => {
+    app.patch('/booking/:id', verifyFriebaseToken, async (req, res) => {
       const id = req.params.id
       const assignDecoratorInfo = req.body
       const query = { _id: new ObjectId(id) }
@@ -316,10 +343,10 @@ async function run() {
     })
 
     // decorator 
-    app.patch('/booking/project/:id', async (req, res) => {
+    app.patch('/booking/project/:id', verifyFriebaseToken, async (req, res) => {
       const { id } = req.params
       console.log(req.body)
-      const status  = req.body.status
+      const status = req.body.status
       const query = { _id: new ObjectId(id) }
       const update = {
         $set: { serviceStatus: status }
@@ -328,7 +355,7 @@ async function run() {
       res.send(result)
     })
 
-    app.delete('/booking/:id', async (req, res) => {
+    app.delete('/booking/:id', verifyFriebaseToken, async (req, res) => {
       const id = req.params.id
       const query = { _id: new ObjectId(id) }
       const result = await bookingCollection.deleteOne(query)
