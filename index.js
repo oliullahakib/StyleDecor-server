@@ -68,6 +68,15 @@ async function run() {
     const paymentCollection = db.collection('payment')
     const decoratorsCollection = db.collection('decorators')
     const usersCollection = db.collection('users')
+    // role middlewares
+    const verifyADMIN = async (req, res, next) => {
+      const email = req.token_email
+      const user = await usersCollection.findOne({ email })
+      if (user?.role !== 'admin'){
+        return res.status(403).send({ message: 'Admin only Actions!', role: user?.role })   
+      }
+      next()
+    }
 
     // user releted apis 
     app.post('/user', async (req, res) => {
@@ -85,8 +94,8 @@ async function run() {
     })
 
     // decorator releted apis 
-    // admin 
-    app.get('/decorators', verifyFriebaseToken, async (req, res) => {
+    // admin d
+    app.get('/decorators', verifyFriebaseToken,verifyADMIN, async (req, res) => {
       const category = req.query.category
       const query = {}
       if (category) {
@@ -170,8 +179,8 @@ async function run() {
       const result = await packagesCollection.findOne(query)
       res.send(result)
     })
-    // adimn 
-    app.post('/package', verifyFriebaseToken, async (req, res) => {
+    // adimn d
+    app.post('/package', verifyFriebaseToken,verifyADMIN, async (req, res) => {
       const newPackage = req.body
       const result = await packagesCollection.insertOne(newPackage)
       res.send(result)
@@ -271,8 +280,8 @@ async function run() {
     })
 
     // booking releted apis 
-    // admin 
-    app.get('/bookings', verifyFriebaseToken, async (req, res) => {
+    // admin d
+    app.get('/bookings', verifyFriebaseToken,verifyADMIN, async (req, res) => {
       const serviceStatus = req.query.serviceStatus
       const query = {}
       if (serviceStatus) {
@@ -342,8 +351,8 @@ async function run() {
       const result = await bookingCollection.insertOne(newPackage)
       res.send(result)
     })
-    // admin 
-    app.patch('/booking/:id', verifyFriebaseToken, async (req, res) => {
+    // admin d
+    app.patch('/booking/:id', verifyFriebaseToken,verifyADMIN, async (req, res) => {
       const id = req.params.id
       const assignDecoratorInfo = req.body
       const query = { _id: new ObjectId(id) }
