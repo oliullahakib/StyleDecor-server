@@ -79,7 +79,8 @@ async function run() {
     })
 
     // decorator releted apis 
-    app.get('/decorators', async (req, res) => {
+    // admin 
+    app.get('/decorators',verifyFriebaseToken, async (req, res) => {
       const category = req.query.category
       const query = {}
       if (category) {
@@ -89,7 +90,12 @@ async function run() {
       const result = await decoratorsCollection.find(query).toArray()
       res.send(result)
     })
-    app.post('/decorator', async (req, res) => {
+    // public 
+    app.get('/decorators/public', async (req, res) => {
+      const result = await decoratorsCollection.find().limit(3).toArray()
+      res.send(result)
+    })
+    app.post('/decorator',verifyFriebaseToken, async (req, res) => {
       const newDecorator = req.body
       // check the user first 
       const userExist = await decoratorsCollection.findOne({ email: newDecorator.email })
