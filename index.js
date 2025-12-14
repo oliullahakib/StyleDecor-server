@@ -299,8 +299,8 @@ async function run() {
       res.send(result)
     })
 
-    // decorator 
-    app.get('/bookings/dacorator', verifyFriebaseToken, async (req, res) => {
+    // decorator d
+    app.get('/bookings/dacorator', verifyFriebaseToken,verifyDecorator, async (req, res) => {
       const serviceStatus = req.query.serviceStatus
       const email = req.query.email
       const query = {}
@@ -371,8 +371,8 @@ async function run() {
       res.send(result)
     })
 
-    // decorator 
-    app.patch('/booking/project/:id', verifyFriebaseToken, async (req, res) => {
+    // decorator d
+    app.patch('/booking/project/:id', verifyFriebaseToken,verifyDecorator, async (req, res) => {
       const { id } = req.params
       console.log(req.body)
       const status = req.body.status
