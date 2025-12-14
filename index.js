@@ -71,16 +71,22 @@ async function run() {
 
     // user releted apis 
     app.post('/user', async (req, res) => {
+      console.log(req.body)
       const newUser = req.body
       newUser.createdAt = new Date()
       newUser.role = "user"
       const result = await usersCollection.insertOne(newUser)
       res.send(result)
     })
+    // get user role
+    app.get('/user/role', verifyFriebaseToken, async (req, res) => {
+      const result = await usersCollection.findOne({ email: req.token_email })
+      res.send({ role: result?.role })
+    })
 
     // decorator releted apis 
     // admin 
-    app.get('/decorators',verifyFriebaseToken, async (req, res) => {
+    app.get('/decorators', verifyFriebaseToken, async (req, res) => {
       const category = req.query.category
       const query = {}
       if (category) {
@@ -95,7 +101,7 @@ async function run() {
       const result = await decoratorsCollection.find().limit(3).toArray()
       res.send(result)
     })
-    app.post('/decorator',verifyFriebaseToken, async (req, res) => {
+    app.post('/decorator', verifyFriebaseToken, async (req, res) => {
       const newDecorator = req.body
       // check the user first 
       const userExist = await decoratorsCollection.findOne({ email: newDecorator.email })
