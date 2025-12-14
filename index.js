@@ -256,7 +256,7 @@ async function run() {
       if(email){
         query.userEmail=email
       }
-      const result = await bookingCollection.find(query).toArray()
+      const result = await bookingCollection.find(query).sort({date:-1}).toArray()
       res.send(result)
     })
     app.get('/bookings/service-status', async (req, res) => {
@@ -275,11 +275,18 @@ async function run() {
     // user 
     app.get('/dashboard/my-bookings', async (req, res) => {
       const email = req.query.email
+      const sort = req.query.sort
+      console.log(sort)
+      let sortValue
       const query = {}
       if (email) {
         query.userEmail = email
       }
-      const result = await bookingCollection.find(query).toArray()
+      if(sort){
+        sortValue=sort==='desc'?-1:1 || -1
+      }
+      console.log(sortValue)
+      const result = await bookingCollection.find(query).sort({date:sortValue}).toArray()
       res.send(result)
     })
     app.get('/booking/:id', async (req, res) => {
