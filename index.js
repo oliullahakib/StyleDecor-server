@@ -276,7 +276,8 @@ async function run() {
     app.get('/dashboard/my-bookings', async (req, res) => {
       const email = req.query.email
       const sort = req.query.sort
-      console.log(sort)
+      const limitValue = Number(req.query.limit) ||0
+      const skipValue = Number(req.query.skip) 
       let sortValue
       const query = {}
       if (email) {
@@ -285,9 +286,9 @@ async function run() {
       if(sort){
         sortValue=sort==='desc'?-1:1 || -1
       }
-      console.log(sortValue)
-      const result = await bookingCollection.find(query).sort({date:sortValue}).toArray()
-      res.send(result)
+      const result = await bookingCollection.find(query).limit(limitValue).skip(skipValue).sort({date:sortValue}).toArray()
+      const totalBooking = await bookingCollection.countDocuments() 
+      res.send({result,totalBooking})
     })
     app.get('/booking/:id', async (req, res) => {
       const id = req.params.id
