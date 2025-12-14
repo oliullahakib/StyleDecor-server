@@ -77,6 +77,14 @@ async function run() {
       }
       next()
     }
+    const verifyDecorator = async (req, res, next) => {
+      const email = req.token_email
+      const user = await usersCollection.findOne({ email })
+      if (user?.role !== 'decorator'){
+        return res.status(403).send({ message: 'Decorator only Actions!', role: user?.role })   
+      }
+      next()
+    }
 
     // user releted apis 
     app.post('/user', async (req, res) => {
