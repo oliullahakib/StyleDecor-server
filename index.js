@@ -299,7 +299,7 @@ async function run() {
     // decorator &admin d
     app.get('/bookings/dacorator', verifyFriebaseToken,async (req, res) => {
       const serviceStatus = req.query.serviceStatus
-      const email = req.query.email
+      const email = req.token_email
       const query = {}
       if (serviceStatus !== "pending" & serviceStatus !== "assign" & serviceStatus !== "completed") {
         query.serviceStatus = { $nin: ['pending', 'assign', 'completed'] }
@@ -307,7 +307,7 @@ async function run() {
         query.serviceStatus = serviceStatus
       }
       if (email) {
-        query.userEmail = email
+        query.decoratorEmail = email
       }
       const result = await bookingCollection.find(query).sort({ date: -1 }).toArray()
       res.send(result)
