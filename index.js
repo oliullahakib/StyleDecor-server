@@ -197,9 +197,6 @@ async function run() {
     app.get('/my-payment-history', verifyFriebaseToken, async (req, res) => {
       const email = req.query.email
       const query = {}
-      if (!email) {
-        return res.send({ message: "requer email to work" })
-      }
       query.payer_email = email
       const result = await paymentCollection.find(query).toArray()
       res.send(result)
@@ -299,8 +296,8 @@ async function run() {
       res.send(result)
     })
 
-    // decorator d
-    app.get('/bookings/dacorator', verifyFriebaseToken,verifyDecorator, async (req, res) => {
+    // decorator &admin d
+    app.get('/bookings/dacorator', verifyFriebaseToken,async (req, res) => {
       const serviceStatus = req.query.serviceStatus
       const email = req.query.email
       const query = {}
@@ -331,6 +328,7 @@ async function run() {
     // user 
     app.get('/dashboard/my-bookings', verifyFriebaseToken, async (req, res) => {
       const email = req.query.email
+      if(email!==req.token_email) return res.status(403).send({message:"forbidden access"})
       const sort = req.query.sort
       const limitValue = Number(req.query.limit) || 0
       const skipValue = Number(req.query.skip) || 0
@@ -343,7 +341,7 @@ async function run() {
         sortValue = sort === 'desc' ? -1 : 1 || -1
       }
       const result = await bookingCollection.find(query).limit(limitValue).skip(skipValue).sort({ date: sortValue }).toArray()
-      const totalBooking = await bookingCollection.countDocuments()
+      const totalBooking = await bookingCollection.countDocuments(query)
       res.send({ result, totalBooking })
     })
     app.get('/booking/:id', verifyFriebaseToken, async (req, res) => {
