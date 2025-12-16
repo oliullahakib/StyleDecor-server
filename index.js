@@ -4,7 +4,8 @@ const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const stripe = require('stripe')(process.env.PAYMENT_SECRET);
 const admin = require("firebase-admin");
-const serviceAccount = require("./styledecor-firebase-adminsdk.json");
+const decoded = Buffer.from(process.env.FB_SERVICE_KEY, 'base64').toString('utf8')
+const serviceAccount = JSON.parse(decoded);
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -61,7 +62,7 @@ function createTrackingId() {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     const db = client.db('styleDecor')
     const packagesCollection = db.collection('packages')
     const bookingCollection = db.collection('booking')
@@ -72,16 +73,16 @@ async function run() {
     const verifyADMIN = async (req, res, next) => {
       const email = req.token_email
       const user = await usersCollection.findOne({ email })
-      if (user?.role !== 'admin'){
-        return res.status(403).send({ message: 'Admin only Actions!', role: user?.role })   
+      if (user?.role !== 'admin') {
+        return res.status(403).send({ message: 'Admin only Actions!', role: user?.role })
       }
       next()
     }
     const verifyDecorator = async (req, res, next) => {
       const email = req.token_email
       const user = await usersCollection.findOne({ email })
-      if (user?.role !== 'decorator'){
-        return res.status(403).send({ message: 'Decorator only Actions!', role: user?.role })   
+      if (user?.role !== 'decorator') {
+        return res.status(403).send({ message: 'Decorator only Actions!', role: user?.role })
       }
       next()
     }
@@ -103,7 +104,7 @@ async function run() {
 
     // decorator releted apis 
     // admin d
-    app.get('/decorators', verifyFriebaseToken,verifyADMIN, async (req, res) => {
+    app.get('/decorators', verifyFriebaseToken, verifyADMIN, async (req, res) => {
       const category = req.query.category
       const query = {}
       if (category) {
@@ -188,7 +189,7 @@ async function run() {
       res.send(result)
     })
     // adimn d
-    app.post('/package', verifyFriebaseToken,verifyADMIN, async (req, res) => {
+    app.post('/package', verifyFriebaseToken, verifyADMIN, async (req, res) => {
       const newPackage = req.body
       const result = await packagesCollection.insertOne(newPackage)
       res.send(result)
@@ -233,8 +234,7 @@ async function run() {
     app.patch('/payment-success', verifyFriebaseToken, async (req, res) => {
       const { session_id } = req.query
       const sessonData = await stripe.checkout.sessions.retrieve(session_id)
-      console.log(sessonData)
-
+      
       // check the booking first 
       const query = { transactionId: sessonData.payment_intent }
       const bookingExsit = await paymentCollection.findOne(query)
@@ -286,7 +286,7 @@ async function run() {
 
     // booking releted apis 
     // admin d
-    app.get('/bookings', verifyFriebaseToken,verifyADMIN, async (req, res) => {
+    app.get('/bookings', verifyFriebaseToken, verifyADMIN, async (req, res) => {
       const serviceStatus = req.query.serviceStatus
       const query = {}
       if (serviceStatus) {
@@ -297,9 +297,9 @@ async function run() {
     })
 
     // decorator &admin d
-    app.get('/bookings/dacorator', verifyFriebaseToken,async (req, res) => {
+    app.get('/bookings/dacorator', verifyFriebaseToken, async (req, res) => {
       const serviceStatus = req.query.serviceStatus
-      const email = req.token_email
+      const email = req.query.email
       const query = {}
       if (serviceStatus !== "pending" & serviceStatus !== "assign" & serviceStatus !== "completed") {
         query.serviceStatus = { $nin: ['pending', 'assign', 'completed'] }
@@ -328,7 +328,7 @@ async function run() {
     // user 
     app.get('/dashboard/my-bookings', verifyFriebaseToken, async (req, res) => {
       const email = req.query.email
-      if(email!==req.token_email) return res.status(403).send({message:"forbidden access"})
+      if (email !== req.token_email) return res.status(403).send({ message: "forbidden access" })
       const sort = req.query.sort
       const limitValue = Number(req.query.limit) || 0
       const skipValue = Number(req.query.skip) || 0
@@ -358,7 +358,7 @@ async function run() {
       res.send(result)
     })
     // admin d
-    app.patch('/booking/:id', verifyFriebaseToken,verifyADMIN, async (req, res) => {
+    app.patch('/booking/:id', verifyFriebaseToken, verifyADMIN, async (req, res) => {
       const id = req.params.id
       const assignDecoratorInfo = req.body
       const query = { _id: new ObjectId(id) }
@@ -370,7 +370,7 @@ async function run() {
     })
 
     // decorator d
-    app.patch('/booking/project/:id', verifyFriebaseToken,verifyDecorator, async (req, res) => {
+    app.patch('/booking/project/:id', verifyFriebaseToken, verifyDecorator, async (req, res) => {
       const { id } = req.params
       console.log(req.body)
       const status = req.body.status
@@ -389,7 +389,7 @@ async function run() {
       res.send(result)
     })
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error

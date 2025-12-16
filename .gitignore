@@ -2,3 +2,5 @@
 node_modules
 vercel
 styledecor-firebase-adminsdk.json
+serviceKey.js
+.vercel
